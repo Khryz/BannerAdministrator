@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+group 'com.superapp.bannerAdministrator'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.6.2'
+    implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-core
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-core', version: '1.12.295'
+
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.296'
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.12.300'
+}
+
+test {
+    useJUnitPlatform()
+}
