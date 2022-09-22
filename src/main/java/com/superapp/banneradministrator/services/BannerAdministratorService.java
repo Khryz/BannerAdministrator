@@ -1,7 +1,9 @@
 package com.superapp.banneradministrator.services;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
 import com.superapp.banneradministrator.BO.GeneralResponseBuilder;
+import com.superapp.banneradministrator.Exceptions.BannerAdministratorException;
 import org.apache.commons.codec.binary.Base64;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.superapp.banneradministrator.Entities.BodyEliminarImagenRequestDTO;
@@ -14,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -22,14 +25,19 @@ public class BannerAdministratorService {
     @Autowired
     BannerAdministratorDao bannerAdministratorDao;
 
-    public ResponseEntity<GeneralResponseDTO> ObtenerBucketsS3(){
-        GeneralResponseBuilder builder = new GeneralResponseBuilder();
-        List<Bucket> buckets = bannerAdministratorDao.ObtenerBucketsS3();
-        GeneralResponseDTO generalResponseDTO = builder.conResultado(buckets).build();
-        return ResponseEntity.ok(generalResponseDTO);
+    public ResponseEntity<GeneralResponseDTO> ObtenerBucketsS3() {
+        try {
+            GeneralResponseBuilder builder = new GeneralResponseBuilder();
+            List<Bucket> buckets = bannerAdministratorDao.ObtenerBucketsS3();
+            GeneralResponseDTO generalResponseDTO = builder.conResultado(buckets).build();
 
+            return ResponseEntity.ok(generalResponseDTO);
+        }catch (AmazonS3Exception s3Exception){
+
+            throw new BannerAdministratorException(Arrays.asList(s3Exception.getMessage()));
+        }
     }
-    public ResponseEntity<GeneralResponseDTO> obtenerInfoBucket(String nombreBucket){
+    public ResponseEntity<GeneralResponseDTO> obtenerInfoBucket(String nombreBucket) {
         GeneralResponseBuilder builder = new GeneralResponseBuilder();
         BucketInfo bucketInfo =  bannerAdministratorDao.obtenerInfoBucket(nombreBucket);
         GeneralResponseDTO generalResponseDTO= builder.conResultado(bucketInfo).build();

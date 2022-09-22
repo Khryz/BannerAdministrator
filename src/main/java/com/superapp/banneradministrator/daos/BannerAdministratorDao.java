@@ -1,21 +1,13 @@
 package com.superapp.banneradministrator.daos;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.*;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.model.*;
 import com.superapp.banneradministrator.Entities.ArchivoBucket;
-import com.superapp.banneradministrator.Entities.BodyEliminarImagenRequestDTO;
-import com.superapp.banneradministrator.Entities.BodyImagenRequestDTO;
 import com.superapp.banneradministrator.Entities.BucketInfo;
 import com.superapp.banneradministrator.config.AmazonConfig;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-
-import com.amazonaws.regions.Region;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -27,7 +19,7 @@ public class BannerAdministratorDao {
     @Autowired
     private AmazonConfig conexionS3;
 
-    public  List<Bucket> ObtenerBucketsS3(){
+    public  List<Bucket> ObtenerBucketsS3() throws AmazonS3Exception{
         AmazonS3 s3 = conexionS3.conectarS3();
         List<Bucket> buckets = s3.listBuckets();
         return buckets;
