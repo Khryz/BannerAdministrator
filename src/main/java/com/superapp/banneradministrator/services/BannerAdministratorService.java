@@ -29,6 +29,11 @@ public class BannerAdministratorService {
         try {
             GeneralResponseBuilder builder = new GeneralResponseBuilder();
             List<Bucket> buckets = bannerAdministratorDao.ObtenerBucketsS3();
+
+            if(buckets.size() <= 0){
+                throw new BannerAdministratorException(Arrays.asList("No se encontraron buckets disponibles"));
+            }
+
             GeneralResponseDTO generalResponseDTO = builder.conResultado(buckets).build();
 
             return ResponseEntity.ok(generalResponseDTO);
