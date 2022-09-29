@@ -25,7 +25,7 @@ public class BannerAdministratorDao {
         return buckets;
     }
 
-    public BucketInfo obtenerInfoBucket(String nombreBucket){
+    public BucketInfo obtenerInfoBucket(String nombreBucket) throws AmazonS3Exception{
         AmazonS3 s3 = conexionS3.conectarS3();
         ListObjectsV2Result result = s3.listObjectsV2(nombreBucket);
         List<S3ObjectSummary> objects = result.getObjectSummaries();

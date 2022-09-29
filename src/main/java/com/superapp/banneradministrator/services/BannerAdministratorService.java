@@ -43,10 +43,14 @@ public class BannerAdministratorService {
         }
     }
     public ResponseEntity<GeneralResponseDTO> obtenerInfoBucket(String nombreBucket) {
-        GeneralResponseBuilder builder = new GeneralResponseBuilder();
-        BucketInfo bucketInfo =  bannerAdministratorDao.obtenerInfoBucket(nombreBucket);
-        GeneralResponseDTO generalResponseDTO= builder.conResultado(bucketInfo).build();
-        return ResponseEntity.ok(generalResponseDTO);
+        try {
+            GeneralResponseBuilder builder = new GeneralResponseBuilder();
+            BucketInfo bucketInfo =  bannerAdministratorDao.obtenerInfoBucket(nombreBucket);
+            GeneralResponseDTO generalResponseDTO= builder.conResultado(bucketInfo).build();
+            return ResponseEntity.ok(generalResponseDTO);
+        }catch(AmazonS3Exception s3Exception){
+            throw new BannerAdministratorException(Arrays.asList(s3Exception.getErrorMessage()));
+        }
     }
 
     public ResponseEntity<GeneralResponseDTO> subirImagenS3(BodyImagenRequestDTO body){

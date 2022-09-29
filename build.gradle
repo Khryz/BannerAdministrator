@@ -1,26 +1,114 @@
-plugins {
-    id 'java'
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+
+
+buildscript {
+    ext {
+        springBootVersion = '2.6.2'
+    }
+    repositories {
+        mavenCentral()
+        maven {
+            url 'https://artifactory.colaboracionsimba.net/artifactory/virtual-devsecops-gradle'
+            credentials{
+                username 'superappdevops'
+                password  'APJURafzNXrGKJuxVLf8hRimoKSSFP94BKk6B'
+            }
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath 'com.bmuschko:gradle-docker-plugin:6.2.0'
+    }
 }
 
-group 'com.superapp.bannerAdministrator'
-version '1.0-SNAPSHOT'
+apply plugin: 'base'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'maven-publish'
+apply plugin: 'com.bmuschko.docker-remote-api'
 
 repositories {
     mavenCentral()
+    maven {
+        url 'https://artifactory.colaboracionsimba.net/artifactory/virtual-devsecops-gradle'
+        credentials{
+            username 'superappdevops'
+            password  'APJURafzNXrGKJuxVLf8hRimoKSSFP94BKk6B'
+        }
+    }
+}
+
+ext {
+    springBootVersion = '2.6.2'
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.6.2'
-    implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
-    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-core
-    implementation group: 'com.amazonaws', name: 'aws-java-sdk-core', version: '1.12.295'
-
-    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3
-    implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.296'
-    // https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk
+    testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
+    testImplementation "org.junit.platform:junit-platform-commons:1.7.0"
+    implementation ("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: "${springBootVersion}"
     implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.12.300'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: "${springBootVersion}"
+}
+
+archivesBaseName = "${projectNameCI}"
+version = "${projectVersionCI}"
+
+//group 'com.superapp.bannerAdministrator'
+//version '1.0-SNAPSHOT'
+
+def jarName = "${projectNameCI}" + '-' + "${projectVersionCI}" + '.jar'
+
+jar {
+    baseName = "${projectNameCI}"
+    version = "${projectVersionCI}"
+}
+
+docker {
+    url = "${dockerDaemon}"
+}
+
+task createDockerfile(type: Dockerfile) {
+    from('openjdk:8u292-oracle-dynatrace')
+    destFile = project.file('Dockerfile')
+    label(['maintainer': "${maintainer}"])
+    copyFile("build/libs/" + jarName , "/lib/" + jarName)
+    exposePort("${puertoImagen}".toInteger())
+    instruction 'ENV AMBIENTE=prod'
+    instruction 'ENV LANG=C.utf8'
+    instruction 'ENV TZ=America/Mexico_City'
+    instruction 'ENV CACERTS_PATH=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.292.b10-1.el8_4.x86_64/jre/lib/security/cacerts'
+    instruction 'USER root'
+    instruction 'RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone'
+    instruction 'RUN mkdir /certs'
+    copyFile('certs/*', '/certs/')
+    copyFile('kafka-certs/*', '/kafka-certs/')
+    instruction 'RUN keytool -keystore $CACERTS_PATH -storepass changeit -noprompt -trustcacerts -importcert -alias apigee -file /certs/dev-api.bancoazteca.com.mx.cer'
+    instruction 'RUN keytool -keystore $CACERTS_PATH -storepass changeit -noprompt -trustcacerts -importcert -alias apigeeProd -file /certs/ca-chain.cer'
+    instruction 'RUN rm -r /certs'
+    copyFile('hosts', '/tmp/')
+    instruction 'RUN cat /tmp/hosts >> /etc/hosts; cat /etc/hosts'
+    entryPoint('sh', '-c', 'java -Dspring.profiles.active=$AMBIENTE -jar /lib/' + jarName)
+
+    group 'Docker'
+    description 'Crea el archivo de Docker'
+    dependsOn bootJar
+}
+
+def imageName = ("${projectNameCI}").toLowerCase()
+
+task buildImage(type: DockerBuildImage, dependsOn: 'build') {
+    println "ejecutando creacion de buildImage"
+    inputDir = file('.')
+    dockerFile = file('Dockerfile')
+    images.add(imageName + ":" + "${projectVersionCI}")
+
+    group 'Docker'
+    description 'Contruye la imagen'
+    dependsOn createDockerfile
 }
 
 test {

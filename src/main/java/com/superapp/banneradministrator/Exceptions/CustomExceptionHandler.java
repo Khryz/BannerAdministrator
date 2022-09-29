@@ -3,11 +3,14 @@ package com.superapp.banneradministrator.Exceptions;
 import com.superapp.banneradministrator.Entities.GeneralResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @RestControllerAdvice
 public class CustomExceptionHandler {
@@ -32,6 +35,20 @@ public class CustomExceptionHandler {
         generalResponseDTO.setCodigo(CODIGO_BAD_REQUEST+"2");
         generalResponseDTO.setMensaje(BAD_REQUEST_MSJ);
         generalResponseDTO.setDetalles(Arrays.asList("No se inform\u00f3 el par\u00e1metro: "+ex.getParameterName()));
+
+        return new ResponseEntity<>(generalResponseDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<GeneralResponseDTO> bodyExcepcion(MethodArgumentNotValidException ex){
+        GeneralResponseDTO generalResponseDTO = new GeneralResponseDTO();
+
+        List<String> errors = new ArrayList<>();
+        ex.getBindingResult().getAllErrors().stream().forEach(err -> errors.add(err.getDefaultMessage()) );
+
+        generalResponseDTO.setCodigo(CODIGO_BAD_REQUEST+"3");
+        generalResponseDTO.setMensaje(BAD_REQUEST_MSJ);
+        generalResponseDTO.setDetalles(errors/*Arrays.asList("No se inform\u00f3 el par\u00e1metro: "+ex.getLocalizedMessage())*/);
 
         return new ResponseEntity<>(generalResponseDTO, HttpStatus.BAD_REQUEST);
     }
