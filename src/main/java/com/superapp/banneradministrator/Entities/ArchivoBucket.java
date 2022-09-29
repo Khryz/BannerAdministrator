@@ -3,40 +3,55 @@ package com.superapp.banneradministrator.Entities;
 import java.util.Date;
 
 public class ArchivoBucket {
-
-    private String bucketName;
     /** The key under which this object is stored */
-    private String key;
+    private String ruta;
     /** Hex encoded MD5 hash of this object's contents, as computed by Amazon S3 */
-    private String eTag;
+    private String tag;
     /** The size of this object, in bytes */
-    private long size;
+    private double tamanoImagen;
 
     /** The date, according to Amazon S3, when this object was last modified */
-    private Date lastModified;
+    private Date ultimoCambio;
 
-    /** The class of storage used by Amazon S3 to store this object */
-    private String storageClass;
-    private String resourceUrl;
+    private String urlImagen;
 
-    public String getResourceUrl() {
-        return resourceUrl;
+    public String getRuta() {
+        return ruta;
     }
 
-    public void setResourceUrl(String resourceUrl) {
-        this.resourceUrl = resourceUrl;
+    public void setRuta(String ruta) {
+        this.ruta = ruta;
     }
 
-    public String getBucketName() {return bucketName;}
-    public void setBucketName(String bucketName) {this.bucketName = bucketName;}
-    public String getKey() {return key;}
-    public void setKey(String key) {this.key = key;}
-    public String geteTag() {return eTag;}
-    public void seteTag(String eTag) {this.eTag = eTag;}
-    public long getSize() {return size;}
-    public void setSize(long size) {this.size = size;}
-    public Date getLastModified() {return lastModified;}
-    public void setLastModified(Date lastModified) {this.lastModified = lastModified;}
-    public String getStorageClass() {return storageClass;}
-    public void setStorageClass(String storageClass) {this.storageClass = storageClass;}
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public double getTamanoImagen() {
+        return tamanoImagen;
+    }
+
+    public void setTamanoImagen(double tamanoImagen) {
+        this.tamanoImagen = tamanoImagen;
+    }
+
+    public Date getUltimoCambio() {
+        return ultimoCambio;
+    }
+
+    public void setUltimoCambio(Date ultimoCambio) {
+        this.ultimoCambio = ultimoCambio;
+    }
+
+    public String getUrlImagen() {
+        return urlImagen;
+    }
+
+    public void setUrlImagen(String urlImagen) {
+        this.urlImagen = urlImagen;
+    }
 }

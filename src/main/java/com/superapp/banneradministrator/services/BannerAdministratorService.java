@@ -12,6 +12,7 @@ import com.superapp.banneradministrator.Entities.BucketInfo;
 import com.superapp.banneradministrator.Entities.GeneralResponseDTO;
 import com.superapp.banneradministrator.daos.BannerAdministratorDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -46,7 +47,12 @@ public class BannerAdministratorService {
         try {
             GeneralResponseBuilder builder = new GeneralResponseBuilder();
             BucketInfo bucketInfo =  bannerAdministratorDao.obtenerInfoBucket(nombreBucket);
-            GeneralResponseDTO generalResponseDTO= builder.conResultado(bucketInfo).build();
+
+            if(bucketInfo.getArchivos().isEmpty()){
+                throw new BannerAdministratorException(Arrays.asList("El bucket no contiene archivos"), HttpStatus.NOT_FOUND);
+            }
+
+            GeneralResponseDTO generalResponseDTO = builder.conResultado(bucketInfo).build();
             return ResponseEntity.ok(generalResponseDTO);
         }catch(AmazonS3Exception s3Exception){
             throw new BannerAdministratorException(Arrays.asList(s3Exception.getErrorMessage()));

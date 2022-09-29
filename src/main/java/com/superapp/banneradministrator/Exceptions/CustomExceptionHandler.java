@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestControllerAdvice
 public class CustomExceptionHandler {
-    private static final String CODIGO_BAD_REQUEST = "400.BannerAdministrator.999";
+    private static final String CODIGO_BAD_REQUEST = "400.BannerAdministrator";
     private static final String BAD_REQUEST_MSJ = "Par\u00e1metros no v\u00e1lidos, por favor valide su informaci\u00f3n";
 
     @ExceptionHandler(BannerAdministratorException.class)
@@ -22,8 +22,8 @@ public class CustomExceptionHandler {
         GeneralResponseDTO generalResponseDTO = new GeneralResponseDTO();
 
         generalResponseDTO.setDetalles(bannerException.getDetalles());
-        generalResponseDTO.setCodigo(CODIGO_BAD_REQUEST+"1");
-        generalResponseDTO.setMensaje("Ocurri\u00f3 un error interno");
+        generalResponseDTO.setCodigo(CODIGO_BAD_REQUEST);
+        generalResponseDTO.setMensaje("Ocurri\u00f3 un error inesperado");
 
         return new ResponseEntity<>(generalResponseDTO, bannerException.getStatus());
     }
