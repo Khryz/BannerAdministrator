@@ -23,6 +23,11 @@ import java.util.List;
 @Component
 public class BannerAdministratorService {
 
+    private final String DETALLE_ELIMINACION = "Se elimin\u00f3 de manera exitosa"; //Operaci n Exitosa. ""
+    private final String DETALLE_BUCKET_SIN_ARCHIVOS = "El bucket no contiene archivos";
+
+    private final String DETALLE_BUCKET_NO_DISPONIBLE = "No se encontraron buckets disponibles";
+
     @Autowired
     BannerAdministratorDao bannerAdministratorDao;
 
@@ -32,7 +37,7 @@ public class BannerAdministratorService {
             List<Bucket> buckets = bannerAdministratorDao.ObtenerBucketsS3();
 
             if(buckets.size() <= 0){
-                throw new BannerAdministratorException(Arrays.asList("No se encontraron buckets disponibles"));
+                throw new BannerAdministratorException(Arrays.asList(DETALLE_BUCKET_NO_DISPONIBLE));
             }
 
             GeneralResponseDTO generalResponseDTO = builder.conResultado(buckets).build();
@@ -49,7 +54,7 @@ public class BannerAdministratorService {
             BucketInfo bucketInfo =  bannerAdministratorDao.obtenerInfoBucket(nombreBucket);
 
             if(bucketInfo.getArchivos().isEmpty()){
-                throw new BannerAdministratorException(Arrays.asList("El bucket no contiene archivos"), HttpStatus.NOT_FOUND);
+                throw new BannerAdministratorException(Arrays.asList(DETALLE_BUCKET_SIN_ARCHIVOS), HttpStatus.NOT_FOUND);
             }
 
             GeneralResponseDTO generalResponseDTO = builder.conResultado(bucketInfo).build();
@@ -80,10 +85,10 @@ public class BannerAdministratorService {
 
     public ResponseEntity<GeneralResponseDTO> eliminarImagenS3(BodyEliminarImagenRequestDTO body){
         GeneralResponseBuilder builder = new GeneralResponseBuilder();
-        String ruta = body.getRutaS3().concat("/").concat(body.getNombreImagen()).concat(".").concat(body.getExtension());
-        System.out.println(ruta);
-        bannerAdministratorDao.eliminarImagenS3(body.getNombreBucket(),ruta);
-        GeneralResponseDTO generalResponseDTO= builder.conMensaje("Operacion exitosa").build();
+
+        bannerAdministratorDao.eliminarImagenS3(body.getNombreBucket(), body.getRutaAbsoluta());
+        GeneralResponseDTO generalResponseDTO = builder.conDetalles(Arrays.asList(DETALLE_ELIMINACION)).build();
+
         return ResponseEntity.ok(generalResponseDTO);
     }
 }
