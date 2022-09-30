@@ -1,5 +1,7 @@
 package com.superapp.banneradministrator.Exceptions;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.superapp.banneradministrator.Entities.GeneralResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,9 @@ import java.util.List;
 public class CustomExceptionHandler {
     private static final String CODIGO_BAD_REQUEST = "400.BannerAdministrator";
     private static final String BAD_REQUEST_MSJ = "Par\u00e1metros no v\u00e1lidos, por favor valide su informaci\u00f3n";
+
+    private static final String MENSAJE_SDK_CLIENTE_AWS = "Amazon S3 no pudo procesar la solicitud";
+    private static final String CODIGO_INTERNAL_SERVER_ERROR = "Lo sentimos, por el momento no podemos realizar su operaci\u00f3n";
 
     @ExceptionHandler(BannerAdministratorException.class)
     public ResponseEntity<GeneralResponseDTO> bannerExcepcion(BannerAdministratorException bannerException){
@@ -48,16 +53,38 @@ public class CustomExceptionHandler {
 
         generalResponseDTO.setCodigo(CODIGO_BAD_REQUEST+"3");
         generalResponseDTO.setMensaje(BAD_REQUEST_MSJ);
-        generalResponseDTO.setDetalles(errors/*Arrays.asList("No se inform\u00f3 el par\u00e1metro: "+ex.getLocalizedMessage())*/);
+        generalResponseDTO.setDetalles(errors);
 
         return new ResponseEntity<>(generalResponseDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AmazonServiceException.class)
+    public ResponseEntity<GeneralResponseDTO> amazonServiceException(AmazonServiceException  ex){
+        GeneralResponseDTO generalResponseDTO = new GeneralResponseDTO();
+
+        generalResponseDTO.setCodigo(CODIGO_BAD_REQUEST+"4");
+        generalResponseDTO.setMensaje(BAD_REQUEST_MSJ);
+        generalResponseDTO.setDetalles(Arrays.asList(ex.getMessage()));
+
+        return new ResponseEntity<>(generalResponseDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(SdkClientException.class)
+    public ResponseEntity<GeneralResponseDTO> sdkClientException(SdkClientException ex){
+        GeneralResponseDTO generalResponseDTO = new GeneralResponseDTO();
+
+        generalResponseDTO.setCodigo(CODIGO_INTERNAL_SERVER_ERROR+"1");
+        generalResponseDTO.setMensaje(MENSAJE_SDK_CLIENTE_AWS);
+        generalResponseDTO.setDetalles(Arrays.asList(ex.getMessage()));
+
+        return new ResponseEntity<>(generalResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<GeneralResponseDTO> excepcionGeneral(Exception ex){
         GeneralResponseDTO generalResponseDTO = new GeneralResponseDTO();
 
-        generalResponseDTO.setMensaje("Lo sentimos, por el momento no podemos realizar su operaci\u00f3n");
+        generalResponseDTO.setMensaje(CODIGO_INTERNAL_SERVER_ERROR+"0");
         generalResponseDTO.setDetalles(Arrays.asList(ex.getMessage()));
         generalResponseDTO.setMensaje("Error interno");
 
