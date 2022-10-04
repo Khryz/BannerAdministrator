@@ -31,7 +31,6 @@ public class BannerAdministratorController {
         return bannerAdministratorService.ObtenerBucketsS3();
     }
 
-    //cambiar por objeto de respuesta
     @GetMapping("/informacion")
     public ResponseEntity<GeneralResponseDTO> obtenerInfoBucket(
             @Valid
@@ -41,7 +40,6 @@ public class BannerAdministratorController {
     return bannerAdministratorService.obtenerInfoBucket(nombreBucket);
     }
 
-    //Cambiar objeto de respuesta
     @PostMapping("/imagen")
     public ResponseEntity<GeneralResponseDTO> subirImagenS3(
             @RequestBody
@@ -59,5 +57,4 @@ public class BannerAdministratorController {
         ){
         return bannerAdministratorService.eliminarImagenS3(bodyImagen);
     }
-
 }

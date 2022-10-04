@@ -19,6 +19,7 @@ public class CustomExceptionHandler {
     private static final String CODIGO_BAD_REQUEST = "400.BannerAdministrator";
     private static final String BAD_REQUEST_MSJ = "Par\u00e1metros no v\u00e1lidos, por favor valide su informaci\u00f3n";
     private static final String MENSAJE_SDK_CLIENTE_AWS = "Amazon S3 no pudo procesar la solicitud";
+    private static final String MENSAJE_AMAZON_EXCEPCION = "El sdk de amazon no pudo serializar la respuesta";
     private static final String CODIGO_INTERNAL_SERVER_ERROR = "Lo sentimos, por el momento no podemos realizar su operaci\u00f3n";
     private static final String DETALLES_PARAMETROS_NO_VALIDOS = "No se inform\u00f3 el par\u00e1metro: ";
     private static final String MENSAJE_INTERNAL_SERVER_ERROR = "Error interno";
@@ -65,7 +66,7 @@ public class CustomExceptionHandler {
         GeneralResponseDTO generalResponseDTO = new GeneralResponseDTO();
 
         generalResponseDTO.setCodigo(CODIGO_BAD_REQUEST+"4");
-        generalResponseDTO.setMensaje(BAD_REQUEST_MSJ);
+        generalResponseDTO.setMensaje(MENSAJE_AMAZON_EXCEPCION);
         generalResponseDTO.setDetalles(Arrays.asList(ex.getMessage()));
 
         return new ResponseEntity<>(generalResponseDTO, HttpStatus.BAD_REQUEST);
