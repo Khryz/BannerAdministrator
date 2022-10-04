@@ -37,7 +37,7 @@ public class BannerAdministratorService {
             List<Bucket> buckets = bannerAdministratorDao.ObtenerBucketsS3();
 
             if(buckets.size() <= 0){
-                throw new BannerAdministratorException(Arrays.asList(DETALLE_BUCKET_NO_DISPONIBLE));
+                throw new BannerAdministratorException(Arrays.asList(DETALLE_BUCKET_NO_DISPONIBLE), HttpStatus.NOT_FOUND);
             }
 
             GeneralResponseDTO generalResponseDTO = builder.conResultado(buckets).build();
