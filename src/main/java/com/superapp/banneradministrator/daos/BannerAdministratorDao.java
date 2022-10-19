@@ -1,8 +1,10 @@
 package com.superapp.banneradministrator.daos;
 
 import com.amazonaws.services.s3.model.*;
+import com.amazonaws.util.Md5Utils;
 import com.superapp.banneradministrator.Entities.ArchivoBucket;
 import com.superapp.banneradministrator.Entities.BucketInfo;
+import com.superapp.banneradministrator.Exceptions.BannerAdministratorException;
 import com.superapp.banneradministrator.config.AmazonConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -53,8 +56,12 @@ public class BannerAdministratorDao {
     public void subirImagenS3(String nombreBucket,String nombreArchivo, byte[] imagenbase64, ObjectMetadata metadatos){
         InputStream fis = new ByteArrayInputStream(imagenbase64);
         AmazonS3 s3 = conexionS3.conectarS3();
-        s3.putObject(nombreBucket,nombreArchivo, fis, metadatos);
-        s3.setObjectAcl(nombreBucket, nombreArchivo, CannedAccessControlList.PublicRead);
+        String md5 = Md5Utils.md5AsBase64(imagenbase64);
+        PutObjectResult result = s3.putObject(nombreBucket,nombreArchivo, fis, metadatos);
+
+        if(!md5.equals(result.getContentMd5())){
+            throw new BannerAdministratorException(Arrays.asList("No se pudo subir la imagen"));
+        }
     }
 
     public void eliminarImagenS3(String nombreBucket, String ruta){
